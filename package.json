@@ -1,0 +1,40 @@
+{
+  "name": "litpro-commonmark",
+  "description": "markdown rendering to html in litpro using commonmark",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jostylr/litpro-commonmark",
+  "author": {
+    "name": "James Taylor",
+    "email": "jostylr@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jostylr/litpro-commonmark.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jostylr/litpro-commonmark/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jostylr/litpro-commonmark/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "dependencies":{
+    "commonmark" : "^0.18.1",
+    "merge" : "^1.2.0"
+  },
+  "devDependencies" : {
+    "literate-programming-cli" : "^0.8.4",
+    "litpro-jshint" : "^0.1.0",
+    "literate-programming-cli-test" : "^0.3.0"
+  },
+  "scripts" : { 
+    "test" : "node ./test.js"
+  },
+  "keywords": ["literate programming plugin"]
+}
