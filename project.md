@@ -1,4 +1,4 @@
-# [litpro-commonmark](# "version: 0.1.0 ; markdown rendering to html in litpro using commonmark")
+# [litpro-commonmark](# "version: 0.2.0 ; markdown rendering to html in litpro using commonmark")
 
 This implements the md command using commonmark. 
 

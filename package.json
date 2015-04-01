@@ -1,7 +1,7 @@
 {
   "name": "litpro-commonmark",
   "description": "markdown rendering to html in litpro using commonmark",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/jostylr/litpro-commonmark",
   "author": {
     "name": "James Taylor",
