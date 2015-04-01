@@ -27,22 +27,163 @@ This is designed to work with the 1.0 version of literate-programming.
 
 ## Index
 
-This is the module entry point. It adds the commands jshint and the directive
-jshint which loads options and globals.
+This is the module entry point. It adds the command md.
+
+The setup is that in `Folder/folder/doc.plugins.commonmark`, we have the
+actors that can have the keys init, pre, during, post, exit. The init should
+initialize things (such as the reader and writer), the pre deals with the text
+before the main parsing, during initiates the parsing and is then available,
+and post starts with the rendering to html and then allows further
+modifications. Exit is a cleanup or log routine if needed. 
+
+Each argument calls in an actor. One can define an actor inline using `key =
+{...}` and the object should have at least one of the keys above. The
+arguments will be acted in the order given; the standard one comes first. 
+
+The only predefined actor other than standard is the tex actor which will
+escape out tex delimited stuff (dollar signs, etc). 
 
 
     var commonmark = require('commonmark');
+    var noop = function () {};
 
-    var reader = new commonmark.Parser();
-    var writer = new commonmark.HtmlRenderer();
+    var actors = {
+        _commonmark : commonmark,
+        standard : _"standard", 
+        tex : _"tex"
+    };
+       
 
     module.exports = function (Folder) {
-        
-        Folder.sync("md", function (text) {
-            var parsed = reader.parse(text); // parsed is a 'Node' tree 
-            return writer.render(parsed); 
+
+        Folder.sync("md", function (text, args) {
+            var doc = this;
+            var data = {text: text};
+            var crew = {};
+
+            var actors = Object.create(doc.plugins.commonmark);
+            
+            _":see if args has key = object"
+            
+            if (args.indexOf("standard") === -1 ) {
+                args.unshift("standard");
+            }
+
+
+            _":args | sub PLACE, init" 
+            _":args | sub PLACE, pre" 
+            _":args | sub PLACE, during" 
+            _":args | sub PLACE, post" 
+            _":args | sub PLACE, exit" 
+
+            return data.html;
         });
+
+        Folder.plugins.commonmark = actors;
+
+
     };
+
+[see if args has key = object]()
+
+If the argument is `key = { ...}`, then the object gets added to the processor
+with the key given. 
+
+    args.forEach( function (el, i) {
+        var ind, key, val;
+        if ( (ind = el.indexOf("=") ) !== -1 ) {
+            key = el.slice(0, ind).trim();
+            try {
+                val = JSON.parse(el.slice(ind+1).trim());
+            } catch (e) {
+                console.error("Error in args", e, el);
+                val = {};
+            }
+            args[i] = key;
+            actors[key] = val;
+        }
+    });
+
+
+[args]()
+
+This runs over the arguments and tries to use any that modify any part of the
+process. 
+
+    args.forEach( function (el) {
+        (actors[el].PLACE || noop)(data, crew, actors );
+    });
+
+### Standard
+
+This does the main processing. 
+
+    {
+        init: function (data, crew) {
+            crew.reader = new commonmark.Parser();
+            crew.writer = new commonmark.HtmlRenderer();
+        },
+        during : function (data, crew) {
+            data.parsed = crew.reader.parse(data.text); // parsed is a 'Node' tree 
+        },
+        post : function (data, crew) { 
+            data.html = crew.writer.render(data.parsed); 
+        }
+    }
+
+
+### Litpro
+
+To have substitutions that can occur after the markdown processing, be sure to
+use `\1_"whatever"` Using commonmark, this works out fine. 
+
+
+
+### Tex
+
+Here we want to escape tex sequences so that the stuff does not get seen by
+the marked processor. In particular, any sequence that has double dollar
+signs, single dollar signs, backslash paren and backslash square bracket as
+delimiters. Note that if these are in backticks, they still get escaped. Which
+should be fine (we replace it as is).
+
+
+    {
+        init : _":init",
+        pre:  _":pre",
+        post : _":post"
+    }
+
+[init]()
+
+    function (data, crew) {
+        data.tex = [];
+        crew.texsnip = function (match) {
+            var tex = data.tex;
+            tex.push(match);
+            return "TEXSNIP"+(tex.length-1);
+        };
+        crew.texunsnip = function (match, number) {
+            return data.tex[parseInt(number, 10)];
+        };
+        crew.texreg = /\$\$[^$]+\$\$|\$[^$\n]+\$|\\\(((?:[^\\]|\\(?!\)))+)\\\)|\\\[((?:[^\\]|\\(?!\]))+)\\\]/g;
+
+    }
+
+[pre]() 
+
+    function (data, crew) {
+        data.text = data.text.replace(crew.texreg, crew.texsnip);
+    }
+
+
+[post]()
+
+    function (data, crew) {
+        data.html = data.html.replace(/TEXSNIP(\d+)/g, crew.texunsnip);
+    }
+
+
 
 ## lprc
 
