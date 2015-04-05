@@ -7,9 +7,9 @@ Install `npm install litpro-commonmark` and then you can use this by requiring i
 
 ## Example lprc.js
 
-module.exports = function (Folder) {
-    require("litpro-commonmark")(Folder);
-}
+    module.exports = function (Folder) {
+        require("litpro-commonmark")(Folder);
+    }
 
 ## Example project.md
 

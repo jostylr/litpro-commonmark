@@ -247,9 +247,9 @@ This is the readme for the plugin.
 
     ## Example lprc.js
 
-    module.exports = function (Folder) {
-        require("litpro-commonmark")(Folder);
-    }
+        module.exports = function (Folder) {
+            require("litpro-commonmark")(Folder);
+        }
 
     ## Example project.md
 
