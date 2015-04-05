@@ -1,4 +1,4 @@
-# [litpro-commonmark](# "version: 0.2.0 ; markdown rendering to html in litpro using commonmark")
+# [litpro-commonmark](# "version: 0.2.1 ; markdown rendering to html in litpro using commonmark")
 
 This implements the md command using commonmark. 
 
@@ -21,7 +21,7 @@ This is designed to work with the 1.0 version of literate-programming.
 * [.npmignore](#npmignore "save: ")
 * [.gitignore](#gitignore "save: ")
 * [.travis.yml](#travis "save: ")
-* [test.js](#test "save:") 
+* [test.js](#test "save: |jshint") 
 
 
 
@@ -36,12 +36,17 @@ before the main parsing, during initiates the parsing and is then available,
 and post starts with the rendering to html and then allows further
 modifications. Exit is a cleanup or log routine if needed. 
 
-Each argument calls in an actor. One can define an actor inline using `key =
-{...}` and the object should have at least one of the keys above. The
+Each argument calls in an actor. One can define an actor inline using `
+{...}` and the object should have at least one of the keys above to be usef. The
 arguments will be acted in the order given; the standard one comes first. 
 
+In the future: after the actor name one can have arguments. 
+
+`tex($..$, $$..$$, \[..\], \(..\) ) , log `
+
+
 The only predefined actor other than standard is the tex actor which will
-escape out tex delimited stuff (dollar signs, etc). 
+escape out tex delimited stuff (dollar signs, etc). And log. 
 
 
     var commonmark = require('commonmark');
@@ -63,7 +68,7 @@ escape out tex delimited stuff (dollar signs, etc).
 
             var actors = Object.create(doc.plugins.commonmark);
             
-            _":see if args has key = object"
+            _":see if args is an object"
             
             if (args.indexOf("standard") === -1 ) {
                 args.unshift("standard");
@@ -84,25 +89,33 @@ escape out tex delimited stuff (dollar signs, etc).
 
     };
 
-[see if args has key = object]()
+[see if args is an object]()
 
-If the argument is `key = { ...}`, then the object gets added to the processor
-with the key given. 
+If the argument is `{ ...}`, then the object gets added to the processor in
+which case it gets labelled as `_#` where the number is the position of the
+argument number.
+
+
 
     args.forEach( function (el, i) {
-        var ind, key, val;
-        if ( (ind = el.indexOf("=") ) !== -1 ) {
-            key = el.slice(0, ind).trim();
+        var key, val;
+        el = el.trim();
+        if (el[0] === "{") {
+            key = "\u005F"+i;
             try {
-                val = JSON.parse(el.slice(ind+1).trim());
+                val = JSON.parse(el);
             } catch (e) {
                 console.error("Error in args", e, el);
                 val = {};
             }
             args[i] = key;
             actors[key] = val;
+
         }
     });
+
+
+
 
 
 [args]()
@@ -183,6 +196,10 @@ should be fine (we replace it as is).
         data.html = data.html.replace(/TEXSNIP(\d+)/g, crew.texunsnip);
     }
 
+### Log
+
+A quick log of the text. Can be used at any point to see the state of the
+text. 
 
 
 ## lprc
@@ -213,7 +230,8 @@ project.md as the file of choice and to build it in the top directory.
     tests( 
         ["simple", "-b ."],
         ["tex", "-b ."],
-        ["lp", "-b ."]
+        ["lp", "-b ."],
+        ["sample", "-b ."]
     );
 
 ## Readme
@@ -228,6 +246,46 @@ This is the readme for the plugin.
 
 
     ## Example lprc.js
+
+    module.exports = function (Folder) {
+        require("litpro-commonmark")(Folder);
+    }
+
+    ## Example project.md
+
+    This is a file you could run to generate some html using this. 
+
+        _":sample"
+
+
+[sample]() 
+
+[tests/sample/project.md](# "save:") 
+
+    # Sample MD
+
+    We just want to create a simple document. 
+
+        <html>
+            <body>
+                \_"content | md"
+            </body>
+
+    [simple.html](# "save:")
+
+    ## Content
+
+        I **love** markdown. Can't you tell?
+
+        There are lots of plugins to use:
+
+        * commonmark
+        * marked
+        * showdown
+        * ...
+
+        I went with commonmark because it has a spec!
+
 
 
 ## npm package

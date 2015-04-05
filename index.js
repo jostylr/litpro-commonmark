@@ -49,17 +49,19 @@ module.exports = function (Folder) {
         var actors = Object.create(doc.plugins.commonmark);
         
         args.forEach( function (el, i) {
-            var ind, key, val;
-            if ( (ind = el.indexOf("=") ) !== -1 ) {
-                key = el.slice(0, ind).trim();
+            var key, val;
+            el = el.trim();
+            if (el[0] === "{") {
+                key = "\u005F"+i;
                 try {
-                    val = JSON.parse(el.slice(ind+1).trim());
+                    val = JSON.parse(el);
                 } catch (e) {
                     console.error("Error in args", e, el);
                     val = {};
                 }
                 args[i] = key;
                 actors[key] = val;
+        
             }
         });
         

@@ -5,5 +5,6 @@ var tests = require('literate-programming-cli-test')("node ../../node_modules/li
 tests( 
     ["simple", "-b ."],
     ["tex", "-b ."],
-    ["lp", "-b ."]
+    ["lp", "-b ."],
+    ["sample", "-b ."]
 );
